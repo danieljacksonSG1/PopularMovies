@@ -1,7 +1,9 @@
-package wsit.com.au.popularmovies;
+package wsit.com.au.popularmovies.ui;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+
+import wsit.com.au.popularmovies.R;
 
 /**
  * Created by guyb on 18/11/15.

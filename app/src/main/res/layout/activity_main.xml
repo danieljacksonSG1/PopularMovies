@@ -9,8 +9,8 @@
     <GridView
 
         android:id="@+id/mainGridView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:numColumns="3" >
 
     </GridView>
@@ -22,6 +22,15 @@
         android:id="@+id/moviesLoadingProgressBar"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/check_network"
+        android:id="@+id/noLinkTextView"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="@android:color/white"/>
 
 
 </RelativeLayout>

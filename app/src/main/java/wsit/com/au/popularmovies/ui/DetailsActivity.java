@@ -1,20 +1,19 @@
-package wsit.com.au.popularmovies;
+package wsit.com.au.popularmovies.ui;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
+import wsit.com.au.popularmovies.R;
 
 public class DetailsActivity extends Activity
 {

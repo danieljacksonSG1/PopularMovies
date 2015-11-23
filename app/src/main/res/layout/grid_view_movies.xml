@@ -6,11 +6,8 @@
     <ImageView
         android:src="@drawable/terminator"
         android:id="@+id/movieThumbImageView"
-        android:scaleType="fitXY"
         android:layout_width="185dp"
         android:layout_height="185dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+ />
 
 </RelativeLayout>

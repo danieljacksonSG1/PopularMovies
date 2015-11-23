@@ -1,4 +1,4 @@
-package wsit.com.au.popularmovies;
+package wsit.com.au.popularmovies.utils;
 
 /**
  * Created by guyb on 17/11/15.
@@ -6,7 +6,7 @@ package wsit.com.au.popularmovies;
 public class PopularMoviesConstants
 {
         // Our API Key for MovieDB
-        public static final String API_KEY = "ADD API KEY HERE";
+        public static final String API_KEY = "API_KEY";
 
         // JSON Keys, also used as keys for the intent extras
         public static final String JSON_RESULTS = "results";

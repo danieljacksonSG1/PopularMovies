@@ -1,36 +1,42 @@
-package wsit.com.au.popularmovies;
+package wsit.com.au.popularmovies.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceActivity;
+import android.hardware.SensorManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.OrientationEventListener;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.util.Set;
+import java.net.NetworkInterface;
+
+import javax.sql.ConnectionEvent;
+
+import wsit.com.au.popularmovies.utils.MovieItems;
+import wsit.com.au.popularmovies.adapters.MovieItemsAdapter;
+import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
+import wsit.com.au.popularmovies.R;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -46,6 +52,11 @@ public class MainActivity extends AppCompatActivity
     // Custom Adapter for the GridView
     MovieItemsAdapter adapter;
 
+    OrientationEventListener mOrientiantionEventListener;
+
+    // Network check textView
+    TextView checkNetwork;
+
 
 
 
@@ -57,12 +68,46 @@ public class MainActivity extends AppCompatActivity
 
         mainGridView = (GridView) findViewById(R.id.mainGridView);
         moviesLoading = (ProgressBar) findViewById(R.id.moviesLoadingProgressBar);
+        checkNetwork = (TextView) findViewById(R.id.noLinkTextView);
 
         // Hide the progress bar
         moviesLoading.setVisibility(View.INVISIBLE);
 
-       // Check what the settings is set to then get the JSON bases on that.
-        sortMovies();
+        // hide the check network textview
+        checkNetwork.setVisibility(View.INVISIBLE);
+
+        // Register a listener for checking the screen orientation
+        // http://www.informit.com/articles/article.aspx?p=2262133&seqNum=4
+        mOrientiantionEventListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+            @Override
+            public void onOrientationChanged(int orientation)
+            {
+                Log.i(TAG, "Orientation changed to: " + orientation);
+
+
+                if (orientation != 0)
+                {
+                    mainGridView.setNumColumns(4);
+                }
+                else
+                {
+                    mainGridView.setNumColumns(3);
+                }
+
+            }
+        };
+
+        if (checkNetworkState())
+        {
+            // Check what the settings is set to then get the JSON bases on that.
+            sortMovies();
+        }
+        else
+        {
+            checkNetwork.setVisibility(View.VISIBLE);
+        }
+
+
 
 
     }
@@ -180,6 +225,7 @@ public class MainActivity extends AppCompatActivity
 
                 // Set the URL in the getter setter object
                 mMovieItemsGetterSetter.setPosterURL(PopularMoviesConstants.BASE_URL + posterPathURL);
+
                 mMovieItemsGetterSetter.setOriginalTitle(originalTitle);
                 mMovieItemsGetterSetter.setPlotSynopsis(plotSynopsis);
                 mMovieItemsGetterSetter.setUserRating(voteAverage);
@@ -254,11 +300,28 @@ public class MainActivity extends AppCompatActivity
 
         moviesLoading.setVisibility(View.INVISIBLE);
 
-        // OnResume from the settings, sort again
-        sortMovies();
+        mOrientiantionEventListener.enable();
+
+
+        if (checkNetworkState())
+        {
+            // Check what the settings is set to then get the JSON bases on that.
+            sortMovies();
+            checkNetwork.setVisibility(View.INVISIBLE);
+        }
+        else
+        {
+            checkNetwork.setVisibility(View.VISIBLE);
+        }
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mOrientiantionEventListener.disable();
+    }
 
     // Menu options
 
@@ -288,5 +351,23 @@ public class MainActivity extends AppCompatActivity
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    // Method to check if we are online
+    //http://developer.android.com/training/basics/network-ops/connecting.html#AsyncTask
+    public boolean checkNetworkState()
+    {
+        ConnectivityManager mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = mConnectivityManager.getActiveNetworkInfo();
+
+        if(networkInfo != null && networkInfo.isConnected())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

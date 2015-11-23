@@ -1,4 +1,4 @@
-package wsit.com.au.popularmovies;
+package wsit.com.au.popularmovies.utils;
 
 /**
  * Created by guyb on 17/11/15.

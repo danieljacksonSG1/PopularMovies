@@ -1,4 +1,4 @@
-package wsit.com.au.popularmovies;
+package wsit.com.au.popularmovies.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+
+import wsit.com.au.popularmovies.R;
+import wsit.com.au.popularmovies.utils.MovieItems;
 
 /**
  * Created by guyb on 18/11/15.
