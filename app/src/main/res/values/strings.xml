@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+
+    <!-- The names of the array enties for the listview -->
+    <string-array name="sortOrder" >
+        <item>Most Popular</item>
+        <item>Highest Rating</item>
+    </string-array>
+
+    <string-array name="sortOrderEntries" >
+        <item>popularity</item>
+        <item>highest_vote_count</item>
+    </string-array>
+
+
+</resources>

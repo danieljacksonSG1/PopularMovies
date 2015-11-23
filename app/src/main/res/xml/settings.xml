@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:title="Movie Sort Order"
+        android:key="KEY_SORT_ORDER"
+        android:defaultValue="Most Popular"
+        android:summary="%s"
+        android:entries="@array/sortOrder"
+        android:entryValues="@array/sortOrder"
+        />
+
+</PreferenceScreen>
