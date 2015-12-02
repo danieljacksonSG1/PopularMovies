@@ -11,6 +11,16 @@ public class MovieItems
     public String userRating;
     public String releaseDate;
     public String backDropPath;
+    public String movieID;
+
+    public String getMovieID() {
+        return movieID;
+    }
+
+    public void setMovieID(String movieID) {
+        this.movieID = movieID;
+    }
+
 
     public String getBackDropPath() {
         return backDropPath;

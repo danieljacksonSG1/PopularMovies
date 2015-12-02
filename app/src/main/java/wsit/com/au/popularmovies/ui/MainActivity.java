@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -66,6 +67,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Test saved state
+        if (savedInstanceState != null)
+        {
+            String testVal = savedInstanceState.getString("KEY_TEST");
+            Log.i(TAG, "Test Val is: " + testVal);
+        }
+
         mainGridView = (GridView) findViewById(R.id.mainGridView);
         moviesLoading = (ProgressBar) findViewById(R.id.moviesLoadingProgressBar);
         checkNetwork = (TextView) findViewById(R.id.noLinkTextView);
@@ -82,14 +90,17 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onOrientationChanged(int orientation)
             {
-                Log.i(TAG, "Orientation changed to: " + orientation);
 
 
-                if (orientation != 0)
+                if (orientation == 270)
                 {
                     mainGridView.setNumColumns(4);
                 }
-                else
+                else if (orientation == 90)
+                {
+                    mainGridView.setNumColumns(4);
+                }
+                else if (orientation == 0)
                 {
                     mainGridView.setNumColumns(3);
                 }
@@ -109,6 +120,16 @@ public class MainActivity extends AppCompatActivity
 
 
 
+
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState)
+    {
+        super.onSaveInstanceState(outState, outPersistentState);
+
+        outState.putString("KEY_TEST", "Test Value");
 
     }
 
@@ -173,8 +194,6 @@ public class MainActivity extends AppCompatActivity
                     Log.i(TAG, JSONDataString);
 
                     // Parse the JSON
-                    // TODO: Write method to parse the JSON Data
-
                     parseJSON(JSONDataString);
 
                 } else {
@@ -194,7 +213,9 @@ public class MainActivity extends AppCompatActivity
 
         try
         {
+            // Create a JSON object using the JSON String data
             JSONObject jsonData = new JSONObject(JSONData);
+            // Get the "results" array
             JSONArray JSONResults = jsonData.getJSONArray(PopularMoviesConstants.JSON_RESULTS);
 
             // Create an array of movieItems which we can load into the custom adapter
@@ -221,6 +242,8 @@ public class MainActivity extends AppCompatActivity
                 String releaseDate = result.getString(PopularMoviesConstants.RELEASE_DATE);
                 // Get the backdrop poster path
                 String backdropPath = result.getString(PopularMoviesConstants.BACKDROP_PATH);
+                // Get the movieID
+                String movieID = result.getString(PopularMoviesConstants.MOVIE_ID);
 
 
                 // Set the URL in the getter setter object
@@ -231,6 +254,7 @@ public class MainActivity extends AppCompatActivity
                 mMovieItemsGetterSetter.setUserRating(voteAverage);
                 mMovieItemsGetterSetter.setReleaseDate(releaseDate);
                 mMovieItemsGetterSetter.setBackDropPath(PopularMoviesConstants.BASE_URL_BACKDROP + backdropPath);
+                mMovieItemsGetterSetter.setMovieID(movieID);
 
                 // Store the MovieItems instance in the MovieItems array
                 movieItems[i] = mMovieItemsGetterSetter;
@@ -288,6 +312,7 @@ public class MainActivity extends AppCompatActivity
         detailsIntent.putExtra(PopularMoviesConstants.VOTE_AVERAGE, movieItem.getUserRating());
         detailsIntent.putExtra(PopularMoviesConstants.RELEASE_DATE, movieItem.getReleaseDate());
         detailsIntent.putExtra(PopularMoviesConstants.BACKDROP_PATH, movieItem.getBackDropPath());
+        detailsIntent.putExtra(PopularMoviesConstants.MOVIE_ID, movieItem.getMovieID());
 
         startActivity(detailsIntent);
 

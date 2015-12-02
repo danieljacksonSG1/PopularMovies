@@ -1,6 +1,7 @@
 package wsit.com.au.popularmovies.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import wsit.com.au.popularmovies.utils.MovieItems;
  */
 public class MovieItemsAdapter extends BaseAdapter
 {
+
+    public static final String TAG = MovieItemsAdapter.class.getSimpleName();
 
     // Define our context
     private Context mContext;
@@ -84,8 +87,18 @@ public class MovieItemsAdapter extends BaseAdapter
         MovieItems Items = mMovieItems[position];
 
         // Now set the data
+        // If the URL is invalid, then catch the exception
+        try
+        {
+            Picasso.with(mContext).load(Items.getPosterURL()).into(holder.movieImage);
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, "Error getting URL " + e.getMessage());
+        }
 
-        Picasso.with(mContext).load(Items.getPosterURL()).into(holder.movieImage);
+
+
 
         return convertView;
     }
