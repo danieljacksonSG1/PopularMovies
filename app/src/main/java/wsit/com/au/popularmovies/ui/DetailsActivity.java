@@ -1,6 +1,7 @@
 package wsit.com.au.popularmovies.ui;
 
 import android.app.Activity;
+import android.app.VoiceInteractor;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -28,12 +29,15 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.concurrent.TransferQueue;
 
+import wsit.com.au.popularmovies.adapters.ReviewItemsAdapter;
 import wsit.com.au.popularmovies.adapters.TrailerItemsAdapter;
 import wsit.com.au.popularmovies.utils.MovieItems;
 import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
 import wsit.com.au.popularmovies.R;
+import wsit.com.au.popularmovies.utils.ReviewItems;
 import wsit.com.au.popularmovies.utils.TrailerItems;
 
 public class DetailsActivity extends Activity
@@ -48,8 +52,6 @@ public class DetailsActivity extends Activity
     TextView mOverview;
     TextView mVoteAverage;
 
-
-
     String movieTitle;
     String movieReleaseDate;
     String movieOverview;
@@ -58,6 +60,7 @@ public class DetailsActivity extends Activity
     String movieID;
 
     ListView trailerListView;
+    ListView reviewsListView;
 
     public String trailerJSONString;
 
@@ -74,7 +77,7 @@ public class DetailsActivity extends Activity
         mOverview = (TextView) findViewById(R.id.overViewTextView);
         mVoteAverage = (TextView) findViewById(R.id.voteAverageTextView);
         trailerListView = (ListView) findViewById(R.id.trailersListView);
-
+        reviewsListView = (ListView) findViewById(R.id.reviewsListView);
 
 
         // Create an intent to get the data from MainActivity
@@ -146,12 +149,20 @@ public class DetailsActivity extends Activity
         getTrailers(movieID);
 
         // Get the Reviews in JSON Format
-        // getReviews(movieID);
+        getReviews(movieID);
 
 
 
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        getTrailers(movieID);
+        getReviews(movieID);
+    }
 
     public void getTrailers(String id)
     {
@@ -170,14 +181,13 @@ public class DetailsActivity extends Activity
             }
 
             @Override
-            public void onResponse(Response response) throws IOException
-            {
+            public void onResponse(Response response) throws IOException {
 
                 if (response.isSuccessful()) {
                     // Here is the trailers JSON
 
-                     trailerJSONString = response.body().string();
-                     Log.d(TAG, trailerJSONString);
+                    trailerJSONString = response.body().string();
+
                     parseJSONTrailers(trailerJSONString);
 
                 } else {
@@ -229,7 +239,8 @@ public class DetailsActivity extends Activity
 
             }
 
-            runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable()
+            {
                 @Override
                 public void run()
                 {
@@ -271,33 +282,33 @@ public class DetailsActivity extends Activity
 
     }
 
+    // Gets the movie review in JSON format
+    // Takes the movie ID as an argument
     public void getReviews(String id)
     {
         String QUERY_URL = "http://api.themoviedb.org/3/movie/" + id + "/reviews?&api_key=" + PopularMoviesConstants.API_KEY;
+        Log.i(TAG, "Review URL is: " + QUERY_URL);
 
         // Create an instance of the OKHttp class
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(QUERY_URL).build();
+        final Request request = new Request.Builder().url(QUERY_URL).build();
 
 
-        client.newCall(request).enqueue(new Callback()
-        {
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e)
-            {
+            public void onFailure(Request request, IOException e) {
                 Log.e(TAG, "Error getting URL: " + e);
 
             }
 
             @Override
-            public void onResponse(Response response) throws IOException
-            {
+            public void onResponse(Response response) throws IOException {
 
-                if (response.isSuccessful())
-                {
+                if (response.isSuccessful()) {
                     // Here is the trailers JSON
-                    Log.i(TAG, "Reviews: " + response.body().string());
+                    String reviewsJSON = response.body().string();
                     // TODO: Parse reviews JSON
+                    parseJSONReviews(reviewsJSON);
 
                 } else {
                     Log.e(TAG, "Error getting trailers JSON");
@@ -306,5 +317,63 @@ public class DetailsActivity extends Activity
             }
         });
 
+    }
+
+    // Parse the JSON reviews
+    private void parseJSONReviews(String JSONData)
+    {
+        Log.i(TAG, JSONData);
+
+        try
+        {
+            // Create the string to JSON
+            JSONObject reviewsJSON = new JSONObject(JSONData);
+            // Load the array into an object
+            JSONArray reviewsArray = reviewsJSON.getJSONArray(PopularMoviesConstants.JSON_RESULTS);
+
+            final ReviewItems mReviewItems[] = new ReviewItems[reviewsArray.length()];
+
+            // Loop through the array
+            for (int i = 0; i < reviewsArray.length(); i++)
+            {
+                // Create an instance to store the JSON Data
+                ReviewItems items = new ReviewItems();
+
+                // Get the review into an object
+                JSONObject JSONReviewItem = reviewsArray.getJSONObject(i);
+
+                String author = JSONReviewItem.getString(PopularMoviesConstants.REVIEW_AUTHOR);
+                String content = JSONReviewItem.getString(PopularMoviesConstants.REVIEW_CONTENT);
+                String reviewURL = JSONReviewItem.getString(PopularMoviesConstants.REVIEW_URL);
+
+                items.setReviewAuthor(author);
+                items.setReviewContent(content);
+                items.setReviewURL(reviewURL);
+
+                mReviewItems[i] = items;
+
+                Log.i(TAG, author);
+                Log.i(TAG, reviewURL);
+                Log.i(TAG, content);
+
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO: Load adapter into ListView
+                    ReviewItemsAdapter reviewItemsAdapter = new ReviewItemsAdapter(DetailsActivity.this, mReviewItems);
+                    reviewsListView.setAdapter(reviewItemsAdapter);
+                }
+            });
+
+
+
+
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

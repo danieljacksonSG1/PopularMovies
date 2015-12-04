@@ -16,9 +16,20 @@ public class PopularMoviesConstants
         public static final String VOTE_AVERAGE = "vote_average";
         public static final String RELEASE_DATE = "release_date";
         public static final String BACKDROP_PATH = "backdrop_path";
+
+        // JSON Keys for getting the trailers
         public static final String MOVIE_ID = "id";
         public static final String YOUTUBE_KEY = "key";
         public static final String TRAILER_NAME = "name";
+
+        // JSON keys for getting the reviews
+        public static final String REVIEW_AUTHOR = "author";
+        public static final String REVIEW_CONTENT = "content";
+        public static final String REVIEW_URL = "url";
+
+
+
+
 
         // API Query URLs
         public static final String mostPopularURL = "http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=";
