@@ -63,6 +63,7 @@
 
 
             <TextView
+                android:id="@+id/trailersTitleTextView"
                 android:paddingTop="5dp"
                 android:paddingLeft="10dp"
                 android:textStyle="bold"
@@ -71,6 +72,13 @@
                 android:layout_height="wrap_content"
                 android:text="Trailers"
                 android:textColor="@android:color/white" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:id="@+id/trailersProgressBar" />
 
             <wsit.com.au.popularmovies.utils.NonScrollListView
                 android:id="@+id/trailersListView"
@@ -81,6 +89,7 @@
 
 
             <TextView
+                android:id="@+id/reviewsTitleTextView"
                 android:textStyle="bold"
                 android:textSize="15sp"
                 android:paddingTop="5dp"
@@ -90,6 +99,13 @@
                 android:layout_height="wrap_content"
                 android:text="Reviews"
                 android:textColor="@android:color/white"/>
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/reviewsProgressBar"
+                android:layout_gravity="center_horizontal"/>
 
             <wsit.com.au.popularmovies.utils.NonScrollListView
                 android:id="@+id/reviewsListView"

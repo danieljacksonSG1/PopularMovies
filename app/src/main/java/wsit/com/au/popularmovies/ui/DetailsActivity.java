@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +63,10 @@ public class DetailsActivity extends Activity
     ListView trailerListView;
     ListView reviewsListView;
 
+    // Progessbars for the listviews
+    ProgressBar trailersProgress;
+    ProgressBar reviewsProgress;
+
     public String trailerJSONString;
 
     @Override
@@ -78,6 +83,12 @@ public class DetailsActivity extends Activity
         mVoteAverage = (TextView) findViewById(R.id.voteAverageTextView);
         trailerListView = (ListView) findViewById(R.id.trailersListView);
         reviewsListView = (ListView) findViewById(R.id.reviewsListView);
+        trailersProgress = (ProgressBar) findViewById(R.id.trailersProgressBar);
+        reviewsProgress = (ProgressBar) findViewById(R.id.reviewsProgressBar);
+
+        // Hide the listViews progress bars initially
+        trailersProgress.setVisibility(View.INVISIBLE);
+        reviewsProgress.setVisibility(View.INVISIBLE);
 
 
         // Create an intent to get the data from MainActivity
@@ -166,6 +177,9 @@ public class DetailsActivity extends Activity
 
     public void getTrailers(String id)
     {
+        // Start showing the trailers progress while we query the API
+        trailersProgress.setVisibility(View.VISIBLE);
+
         String QUERY_URL = "http://api.themoviedb.org/3/movie/" + id + "/videos?&api_key=" + PopularMoviesConstants.API_KEY;
 
         // Create an instance of the OKHttp class
@@ -239,18 +253,22 @@ public class DetailsActivity extends Activity
 
             }
 
+
+
             runOnUiThread(new Runnable()
             {
+
                 @Override
-                public void run()
-                {
+                public void run() {
+
+                    // Now hide the trailers Progress
+                    trailersProgress.setVisibility(View.INVISIBLE);
                     final TrailerItemsAdapter adapter = new TrailerItemsAdapter(DetailsActivity.this, trailerItems);
                     trailerListView.setAdapter(adapter);
 
                     trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-                        {
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                             TrailerItems trailerItem = (TrailerItems) adapter.getItem(position);
                             String youtubeKey = trailerItem.getTrailerKey();
@@ -286,6 +304,9 @@ public class DetailsActivity extends Activity
     // Takes the movie ID as an argument
     public void getReviews(String id)
     {
+        // Show the reviews Progress
+        reviewsProgress.setVisibility(View.VISIBLE);
+
         String QUERY_URL = "http://api.themoviedb.org/3/movie/" + id + "/reviews?&api_key=" + PopularMoviesConstants.API_KEY;
         Log.i(TAG, "Review URL is: " + QUERY_URL);
 
@@ -322,7 +343,7 @@ public class DetailsActivity extends Activity
     // Parse the JSON reviews
     private void parseJSONReviews(String JSONData)
     {
-        Log.i(TAG, JSONData);
+
 
         try
         {
@@ -358,9 +379,14 @@ public class DetailsActivity extends Activity
 
             }
 
+
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+
+                    // Now hide the reviews Progress
+                    reviewsProgress.setVisibility(View.INVISIBLE);
                     // TODO: Load adapter into ListView
                     ReviewItemsAdapter reviewItemsAdapter = new ReviewItemsAdapter(DetailsActivity.this, mReviewItems);
                     reviewsListView.setAdapter(reviewItemsAdapter);
