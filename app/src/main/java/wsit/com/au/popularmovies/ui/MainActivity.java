@@ -150,6 +150,15 @@ public class MainActivity extends AppCompatActivity
             // Get the JSON Data and print it as a string
             getJSON(PopularMoviesConstants.highestRatedURL + PopularMoviesConstants.API_KEY);
         }
+        else if(getSortOrderFromSettings().equals("Favorites"))
+        {
+            // Sort by favorites
+
+            // TODO: Write method to query database and sort movies from favorites
+            Log.i(TAG, "Sorting movies favorites");
+
+
+        }
     }
 
 

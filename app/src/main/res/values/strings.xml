@@ -7,11 +7,13 @@
     <string-array name="sortOrder" >
         <item>Most Popular</item>
         <item>Highest Rating</item>
+        <item>Favorites</item>
     </string-array>
 
     <string-array name="sortOrderEntries" >
         <item>popularity</item>
         <item>highest_vote_count</item>
+        <item>favorites</item>
     </string-array>
 
 

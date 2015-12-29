@@ -2,7 +2,10 @@ package wsit.com.au.popularmovies.ui;
 
 import android.app.Activity;
 import android.app.VoiceInteractor;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
@@ -11,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -35,6 +39,7 @@ import java.util.concurrent.TransferQueue;
 
 import wsit.com.au.popularmovies.adapters.ReviewItemsAdapter;
 import wsit.com.au.popularmovies.adapters.TrailerItemsAdapter;
+import wsit.com.au.popularmovies.db.PopularMoviesDBHelper;
 import wsit.com.au.popularmovies.utils.MovieItems;
 import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
 import wsit.com.au.popularmovies.R;
@@ -67,6 +72,12 @@ public class DetailsActivity extends Activity
     ProgressBar trailersProgress;
     ProgressBar reviewsProgress;
 
+    // Add to favorites checkbox
+    CheckBox favorites;
+
+    PopularMoviesDBHelper dbHelper;
+    SQLiteDatabase database;
+
     public String trailerJSONString;
 
     @Override
@@ -85,10 +96,14 @@ public class DetailsActivity extends Activity
         reviewsListView = (ListView) findViewById(R.id.reviewsListView);
         trailersProgress = (ProgressBar) findViewById(R.id.trailersProgressBar);
         reviewsProgress = (ProgressBar) findViewById(R.id.reviewsProgressBar);
+        favorites = (CheckBox) findViewById(R.id.favoritesCheckBox);
 
         // Hide the listViews progress bars initially
         trailersProgress.setVisibility(View.INVISIBLE);
         reviewsProgress.setVisibility(View.INVISIBLE);
+
+
+
 
 
         // Create an intent to get the data from MainActivity
@@ -99,6 +114,171 @@ public class DetailsActivity extends Activity
 
         // Now set the Intent data in the UI
         setIntentData();
+
+        // Check if movie is in favorties DB
+        queryFavoritesDB();
+
+
+        favorites.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                if (favorites.isChecked())
+                {
+                    // Movie was already is DB
+                    // TODO: Write remove method
+                    removeMovieFromFavorites();
+                }
+                else if(!favorites.isChecked())
+                {
+                    // Movie checkbox not check
+                    // Add to favorites
+                    addMovieToFavorites();
+                }
+
+            }
+
+        });
+
+
+
+    }
+
+    public boolean checkIfmovieIsFavorite()
+    {
+
+        boolean found = false;
+        Log.i(TAG, "Checking if movie is in favorites");
+
+        // Setup access to the db
+        dbHelper = new PopularMoviesDBHelper(this);
+        database = dbHelper.getWritableDatabase();
+
+        String allColums[] = {
+                PopularMoviesDBHelper.COLUMN_ID,
+                PopularMoviesDBHelper.COLUMN_TITLE,
+                PopularMoviesDBHelper.COLUMN_RELEASE_YEAR,
+                PopularMoviesDBHelper.COLUMN_PLOT,
+                PopularMoviesDBHelper.COLUMN_RATING };
+
+        Cursor cursor = database.query(PopularMoviesDBHelper.TABLE_FAVORITES, allColums, null, null, null, null, null);
+
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); i++)
+        {
+
+            if (cursor.getString(1).equals(movieTitle))
+            {
+                found = true;
+            }
+
+                cursor.moveToNext();
+
+
+        }
+
+        if (found)
+        {
+            cursor.close();
+            database.close();
+            return true;
+        }
+        else
+        {
+            cursor.close();
+            database.close();
+            return false;
+        }
+
+
+
+
+
+
+
+    }
+
+    private void removeMovieFromFavorites()
+    {
+        Log.i(TAG, "Removing movie from favorites");
+
+        // Setup access to the db
+        dbHelper = new PopularMoviesDBHelper(this);
+        database = dbHelper.getWritableDatabase();
+
+            String allColums[] = {
+                    PopularMoviesDBHelper.COLUMN_ID,
+                    PopularMoviesDBHelper.COLUMN_TITLE,
+                    PopularMoviesDBHelper.COLUMN_RELEASE_YEAR,
+                    PopularMoviesDBHelper.COLUMN_PLOT,
+                    PopularMoviesDBHelper.COLUMN_RATING };
+
+            Cursor cursor = database.query(PopularMoviesDBHelper.TABLE_FAVORITES, allColums, null, null, null, null, null);
+
+            cursor.moveToFirst();
+            for (int i = 0; i < cursor.getCount(); i++)
+            {
+
+                for (int column_i = 0; column_i < cursor.getColumnCount(); column_i++)
+                {
+                    Log.i(TAG, cursor.getString(column_i));
+                }
+
+                cursor.moveToNext();
+            }
+
+
+
+        cursor.close();
+        database.close();
+
+
+
+
+    }
+
+    private void addMovieToFavorites()
+    {
+
+        if (checkIfmovieIsFavorite())
+        {
+            Toast.makeText(DetailsActivity.this, "Movie already in favorites", Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            Log.i(TAG, "Adding movie to favorites");
+            Toast.makeText(DetailsActivity.this, "Added to favorites", Toast.LENGTH_LONG).show();
+            // Setup access to the db
+            dbHelper = new PopularMoviesDBHelper(this);
+            database = dbHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(PopularMoviesDBHelper.COLUMN_TITLE, movieTitle);
+            values.put(PopularMoviesDBHelper.COLUMN_RELEASE_YEAR, movieReleaseDate);
+            values.put(PopularMoviesDBHelper.COLUMN_PLOT, movieOverview);
+            values.put(PopularMoviesDBHelper.COLUMN_RATING, movieVoteAverage);
+
+            database.insert(PopularMoviesDBHelper.TABLE_FAVORITES, null, values);
+
+            database.close();
+        }
+
+
+
+    }
+
+    private void queryFavoritesDB()
+    {
+        Log.i(TAG, "Checking if movie is in movieDB");
+        // If it is then set the checkbox to true
+        if (checkIfmovieIsFavorite())
+        {
+            favorites.setChecked(true);
+        }
+        else
+        {
+            favorites.setChecked(false);
+        }
 
 
     }
@@ -125,6 +305,8 @@ public class DetailsActivity extends Activity
         backdropURL = intent.getStringExtra(PopularMoviesConstants.BACKDROP_PATH);
         // Get the movieID
         movieID = intent.getStringExtra(PopularMoviesConstants.MOVIE_ID);
+
+
 
     }
 
@@ -294,7 +476,7 @@ public class DetailsActivity extends Activity
     private void openVideo(String youTubeKey)
     {
         String fullURL = PopularMoviesConstants.YOUTUBE_BASE_URL + youTubeKey;
-        Log.i(TAG, "YouTube URL is: " + fullURL);
+        //Log.i(TAG, "YouTube URL is: " + fullURL);
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(fullURL));
         startActivity(intent);
 
@@ -308,7 +490,7 @@ public class DetailsActivity extends Activity
         reviewsProgress.setVisibility(View.VISIBLE);
 
         String QUERY_URL = "http://api.themoviedb.org/3/movie/" + id + "/reviews?&api_key=" + PopularMoviesConstants.API_KEY;
-        Log.i(TAG, "Review URL is: " + QUERY_URL);
+        //Log.i(TAG, "Review URL is: " + QUERY_URL);
 
         // Create an instance of the OKHttp class
         OkHttpClient client = new OkHttpClient();
@@ -373,9 +555,9 @@ public class DetailsActivity extends Activity
 
                 mReviewItems[i] = items;
 
-                Log.i(TAG, author);
-                Log.i(TAG, reviewURL);
-                Log.i(TAG, content);
+                //Log.i(TAG, author);
+                //Log.i(TAG, reviewURL);
+                //Log.i(TAG, content);
 
             }
 
@@ -386,7 +568,7 @@ public class DetailsActivity extends Activity
                 public void run() {
 
                     // Now hide the reviews Progress
-                    reviewsProgress.setVisibility(View.INVISIBLE);
+                    reviewsProgress.setVisibility(View.GONE);
                     // TODO: Load adapter into ListView
                     ReviewItemsAdapter reviewItemsAdapter = new ReviewItemsAdapter(DetailsActivity.this, mReviewItems);
                     reviewsListView.setAdapter(reviewItemsAdapter);
