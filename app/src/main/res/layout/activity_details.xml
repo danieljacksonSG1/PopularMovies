@@ -28,7 +28,7 @@
                     android:paddingLeft="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="22sp"
+                    android:textSize="16sp"
                     android:text="Spectre"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
@@ -41,7 +41,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
-                    android:id="@+id/favoritesCheckBox"/>
+                    android:id="@+id/favoritesCheckBox"
+                    android:layout_weight="1"/>
 
             </LinearLayout>
 

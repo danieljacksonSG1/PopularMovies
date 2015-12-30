@@ -1,6 +1,9 @@
 package wsit.com.au.popularmovies.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +12,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 
 import wsit.com.au.popularmovies.R;
 import wsit.com.au.popularmovies.utils.MovieItems;
@@ -90,7 +95,10 @@ public class MovieItemsAdapter extends BaseAdapter
         // If the URL is invalid, then catch the exception
         try
         {
+
             Picasso.with(mContext).load(Items.getPosterURL()).into(holder.movieImage);
+            Log.i(TAG, "Bitmap location is: " + Items.getPosterURL());
+
         }
         catch (Exception e)
         {

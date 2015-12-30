@@ -16,7 +16,7 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper
 
     // DB
     public static final String DATABASE_NAME = "movies.db";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 3;
 
     // Table
     public static final String TABLE_FAVORITES = "favorites";
@@ -27,8 +27,8 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper
     public static final String COLUMN_RELEASE_YEAR = "release_year";
     public static final String COLUMN_PLOT = "plot";
     public static final String COLUMN_RATING = "rating";
-    public static final String COLUMN_MOVIE_IMAGE = "movie_image";
-    public static final String COLUMN_MOVIE_GRID_IMAGE = "movie_grid_image";
+    public static final String COLUMN_BACKDROP_IMAGE = "movie_image";
+    public static final String COLUMN_POSTER_IMAGE = "movie_grid_image";
 
     // DB Creation Statement
     public static final String DATABASE_CREATE = "CREATE TABLE "
@@ -38,8 +38,8 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper
             + COLUMN_RELEASE_YEAR + " TEXT NOT NULL,"
             + COLUMN_PLOT + " TEXT NOT NULL,"
             + COLUMN_RATING + " TEXT NOT NULL,"
-            + COLUMN_MOVIE_IMAGE + " BLOB,"
-            + COLUMN_MOVIE_GRID_IMAGE + " BLOB)";
+            + COLUMN_BACKDROP_IMAGE + " TEXT,"
+            + COLUMN_POSTER_IMAGE + " TEXT)";
 
 
     public PopularMoviesDBHelper(Context context)
@@ -61,7 +61,7 @@ public class PopularMoviesDBHelper extends SQLiteOpenHelper
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion)
     {
         Log.v(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
-        sqLiteDatabase.execSQL("DROP_TABLE IF EXISTS " + TABLE_FAVORITES);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
         onCreate(sqLiteDatabase);
     }
 }

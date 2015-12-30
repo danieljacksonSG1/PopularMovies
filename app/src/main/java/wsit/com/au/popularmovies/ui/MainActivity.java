@@ -3,6 +3,8 @@ package wsit.com.au.popularmovies.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -34,6 +36,7 @@ import java.net.NetworkInterface;
 
 import javax.sql.ConnectionEvent;
 
+import wsit.com.au.popularmovies.db.PopularMoviesDBHelper;
 import wsit.com.au.popularmovies.utils.MovieItems;
 import wsit.com.au.popularmovies.adapters.MovieItemsAdapter;
 import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
@@ -108,7 +111,7 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
-        if (checkNetworkState())
+        if (checkNetworkState() || getSortOrderFromSettings().equals("Favorites"))
         {
             // Check what the settings is set to then get the JSON bases on that.
             sortMovies();
@@ -155,10 +158,67 @@ public class MainActivity extends AppCompatActivity
             // Sort by favorites
 
             // TODO: Write method to query database and sort movies from favorites
-            Log.i(TAG, "Sorting movies favorites");
-
+            Log.i(TAG, "Sorting movies by favorites");
+            showFavorites();
 
         }
+    }
+
+    private void showFavorites()
+    {
+            // Query database
+            PopularMoviesDBHelper dbHelper = new PopularMoviesDBHelper(this);
+            SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        String allColums[] = {
+                PopularMoviesDBHelper.COLUMN_ID,
+                PopularMoviesDBHelper.COLUMN_TITLE,
+                PopularMoviesDBHelper.COLUMN_RELEASE_YEAR,
+                PopularMoviesDBHelper.COLUMN_PLOT,
+                PopularMoviesDBHelper.COLUMN_RATING,
+                PopularMoviesDBHelper.COLUMN_BACKDROP_IMAGE,
+                PopularMoviesDBHelper.COLUMN_POSTER_IMAGE};
+
+        Cursor cursor = database.query(PopularMoviesDBHelper.TABLE_FAVORITES, allColums, null, null, null, null, null);
+
+        // Move to the first position
+        cursor.moveToFirst();
+
+        // Create the MovieItems object to store the data for the adapter
+        final MovieItems movieItems[] = new MovieItems[cursor.getCount()];
+
+        // Cycle through each row
+        for (int i = 0; i < cursor.getCount(); i++)
+        {
+
+            MovieItems mItem = new MovieItems();
+
+
+            mItem.setPosterURL(cursor.getString(6)); // Poster URL
+
+            movieItems[i] = mItem;
+
+            cursor.moveToNext();
+
+        }
+
+            // Display data in gridview
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run()
+            {
+                adapter = new MovieItemsAdapter(MainActivity.this, movieItems);
+                mainGridView.setAdapter(adapter);
+
+                mainGridView.setOnItemClickListener(null);
+            }
+        });
+
+        cursor.close();
+        database.close();
+
+
     }
 
 
@@ -337,7 +397,7 @@ public class MainActivity extends AppCompatActivity
         mOrientiantionEventListener.enable();
 
 
-        if (checkNetworkState())
+        if (checkNetworkState() || getSortOrderFromSettings().equals("Favorites"))
         {
             // Check what the settings is set to then get the JSON bases on that.
             sortMovies();

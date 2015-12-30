@@ -6,8 +6,10 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,6 +60,7 @@ public class DetailsActivity extends Activity
     TextView mReleaseDate;
     TextView mOverview;
     TextView mVoteAverage;
+    TextView reviewsTextView;
 
     String movieTitle;
     String movieReleaseDate;
@@ -64,6 +68,7 @@ public class DetailsActivity extends Activity
     String movieVoteAverage;
     String backdropURL;
     String movieID;
+    String posterURL;
 
     ListView trailerListView;
     ListView reviewsListView;
@@ -97,6 +102,7 @@ public class DetailsActivity extends Activity
         trailersProgress = (ProgressBar) findViewById(R.id.trailersProgressBar);
         reviewsProgress = (ProgressBar) findViewById(R.id.reviewsProgressBar);
         favorites = (CheckBox) findViewById(R.id.favoritesCheckBox);
+        reviewsTextView = (TextView) findViewById(R.id.reviewsTitleTextView);
 
         // Hide the listViews progress bars initially
         trailersProgress.setVisibility(View.INVISIBLE);
@@ -123,17 +129,19 @@ public class DetailsActivity extends Activity
             @Override
             public void onClick(View view)
             {
+
+                // If the checkbox was not click previously, then it will be now so we we want to add it to the database
                 if (favorites.isChecked())
-                {
-                    // Movie was already is DB
-                    // TODO: Write remove method
-                    removeMovieFromFavorites();
-                }
-                else if(!favorites.isChecked())
                 {
                     // Movie checkbox not check
                     // Add to favorites
                     addMovieToFavorites();
+
+                }
+                // If it was checked before, now it is not so this will be true
+                else if(!favorites.isChecked())
+                {
+                    removeMovieFromFavorites();
                 }
 
             }
@@ -192,44 +200,21 @@ public class DetailsActivity extends Activity
 
 
 
-
-
-
-
     }
 
     private void removeMovieFromFavorites()
     {
         Log.i(TAG, "Removing movie from favorites");
+        Toast.makeText(DetailsActivity.this, "Removing movie from favorites", Toast.LENGTH_LONG).show();
 
         // Setup access to the db
         dbHelper = new PopularMoviesDBHelper(this);
         database = dbHelper.getWritableDatabase();
 
-            String allColums[] = {
-                    PopularMoviesDBHelper.COLUMN_ID,
-                    PopularMoviesDBHelper.COLUMN_TITLE,
-                    PopularMoviesDBHelper.COLUMN_RELEASE_YEAR,
-                    PopularMoviesDBHelper.COLUMN_PLOT,
-                    PopularMoviesDBHelper.COLUMN_RATING };
-
-            Cursor cursor = database.query(PopularMoviesDBHelper.TABLE_FAVORITES, allColums, null, null, null, null, null);
-
-            cursor.moveToFirst();
-            for (int i = 0; i < cursor.getCount(); i++)
-            {
-
-                for (int column_i = 0; column_i < cursor.getColumnCount(); column_i++)
-                {
-                    Log.i(TAG, cursor.getString(column_i));
-                }
-
-                cursor.moveToNext();
-            }
+        // Delete from Favorites where movieTitle = the movieTitle
+        database.delete(PopularMoviesDBHelper.TABLE_FAVORITES, PopularMoviesDBHelper.COLUMN_TITLE + "='" + movieTitle + "'", null);
 
 
-
-        cursor.close();
         database.close();
 
 
@@ -252,11 +237,56 @@ public class DetailsActivity extends Activity
             dbHelper = new PopularMoviesDBHelper(this);
             database = dbHelper.getWritableDatabase();
 
-            ContentValues values = new ContentValues();
+            final ContentValues values = new ContentValues();
             values.put(PopularMoviesDBHelper.COLUMN_TITLE, movieTitle);
             values.put(PopularMoviesDBHelper.COLUMN_RELEASE_YEAR, movieReleaseDate);
             values.put(PopularMoviesDBHelper.COLUMN_PLOT, movieOverview);
             values.put(PopularMoviesDBHelper.COLUMN_RATING, movieVoteAverage);
+            values.put(PopularMoviesDBHelper.COLUMN_POSTER_IMAGE, posterURL);
+            values.put(PopularMoviesDBHelper.COLUMN_BACKDROP_IMAGE, backdropURL);
+
+          /*  // Put the backdrop URL bitmap into the DB
+            Picasso.with(this).load(backdropURL).into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
+                {
+                    // Save the bitmap in the DB
+                    values.put(PopularMoviesDBHelper.COLUMN_BACKDROP_IMAGE, bitmap.toString());
+
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            });
+
+            // Put the poster URL bitmap into the DB
+            Picasso.with(this).load(posterURL).into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
+                {
+                        values.put(PopularMoviesDBHelper.COLUMN_POSTER_IMAGE, bitmap.toString());
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            });
+
+            */
+
 
             database.insert(PopularMoviesDBHelper.TABLE_FAVORITES, null, values);
 
@@ -305,6 +335,8 @@ public class DetailsActivity extends Activity
         backdropURL = intent.getStringExtra(PopularMoviesConstants.BACKDROP_PATH);
         // Get the movieID
         movieID = intent.getStringExtra(PopularMoviesConstants.MOVIE_ID);
+        // Get the Poster URL
+        posterURL = intent.getStringExtra(PopularMoviesConstants.POSTER_PATH);
 
 
 
@@ -510,7 +542,7 @@ public class DetailsActivity extends Activity
                 if (response.isSuccessful()) {
                     // Here is the trailers JSON
                     String reviewsJSON = response.body().string();
-                    // TODO: Parse reviews JSON
+
                     parseJSONReviews(reviewsJSON);
 
                 } else {
@@ -534,7 +566,28 @@ public class DetailsActivity extends Activity
             // Load the array into an object
             JSONArray reviewsArray = reviewsJSON.getJSONArray(PopularMoviesConstants.JSON_RESULTS);
 
+
+            // Check if we have any reviews by examing the length of the JSON Array
+            // If it's 0 then hide the Reviews TextView
+            if (reviewsArray.length() == 0)
+            {
+                Log.i(TAG, "No reviews for this one");
+                // Hide the Reviews set text
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        reviewsTextView.setVisibility(View.GONE);
+                    }
+                });
+
+
+
+            }
+
             final ReviewItems mReviewItems[] = new ReviewItems[reviewsArray.length()];
+
+
 
             // Loop through the array
             for (int i = 0; i < reviewsArray.length(); i++)
@@ -569,7 +622,7 @@ public class DetailsActivity extends Activity
 
                     // Now hide the reviews Progress
                     reviewsProgress.setVisibility(View.GONE);
-                    // TODO: Load adapter into ListView
+
                     ReviewItemsAdapter reviewItemsAdapter = new ReviewItemsAdapter(DetailsActivity.this, mReviewItems);
                     reviewsListView.setAdapter(reviewItemsAdapter);
                 }
