@@ -6,7 +6,7 @@ package wsit.com.au.popularmovies.utils;
 public class PopularMoviesConstants
 {
         // Our API Key for MovieDB
-        public static final String API_KEY = "4a0ef3c693045b63c407d7f5b520f647";
+        public static final String API_KEY = "API_KEY";
 
         // JSON Keys, also used as keys for the intent extras
         public static final String JSON_RESULTS = "results";
@@ -28,16 +28,13 @@ public class PopularMoviesConstants
         public static final String REVIEW_URL = "url";
 
 
-
-
-
         // API Query URLs
         public static final String mostPopularURL = "http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=";
         public static final String highestRatedURL = "http://api.themoviedb.org/3/discover/movie?sort_by=vote_average.desc&api_key=";
 
         // Base URLs
         // Base URL;
-        public static final String BASE_URL = "http://image.tmdb.org/t/p/w185";
+        public static final String BASE_URL = "http://image.tmdb.org/t/p/w342";
         public static final String BASE_URL_BACKDROP = "http://image.tmdb.org/t/p/w500";
 
         // Settings

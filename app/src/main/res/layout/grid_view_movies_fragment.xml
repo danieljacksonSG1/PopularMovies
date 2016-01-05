@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:numColumns="auto_fit" >
 
+
     </GridView>
 
     <ProgressBar

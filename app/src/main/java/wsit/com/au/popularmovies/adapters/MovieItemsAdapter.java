@@ -96,7 +96,10 @@ public class MovieItemsAdapter extends BaseAdapter
         try
         {
 
-            Picasso.with(mContext).load(Items.getPosterURL()).into(holder.movieImage);
+            Picasso.with(mContext).load(Items.getPosterURL())
+                    .placeholder(R.drawable.loading)
+                    .error(R.drawable.noimage)
+                    .into(holder.movieImage);
 
 
         }

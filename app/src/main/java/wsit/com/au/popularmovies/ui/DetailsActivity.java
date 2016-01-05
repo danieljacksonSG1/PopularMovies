@@ -1,16 +1,9 @@
 package wsit.com.au.popularmovies.ui;
-
 import android.app.Activity;
-import android.app.VoiceInteractor;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,10 +13,8 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -32,16 +23,10 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import java.io.IOException;
-import java.net.URI;
-import java.util.concurrent.TransferQueue;
-
 import wsit.com.au.popularmovies.adapters.ReviewItemsAdapter;
 import wsit.com.au.popularmovies.adapters.TrailerItemsAdapter;
 import wsit.com.au.popularmovies.db.PopularMoviesDBHelper;
-import wsit.com.au.popularmovies.utils.MovieItems;
 import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
 import wsit.com.au.popularmovies.R;
 import wsit.com.au.popularmovies.utils.ReviewItems;
@@ -142,8 +127,6 @@ public class DetailsActivity extends Activity
             }
 
         });
-
-
 
     }
 
@@ -302,10 +285,8 @@ public class DetailsActivity extends Activity
         // Load the backdrop URL into the imageView using Picasso
         Picasso.with(DetailsActivity.this)
                 .load(backdropURL)
-
-                // TODO: Add place holder and error drawables
-                .placeholder(R.drawable.terminator) // Placeholder
-                .error(R.drawable.terminator) // Handle the error
+                .placeholder(R.drawable.loading) // Placeholder
+                .error(R.drawable.noimage) // Handle the error
                 .into(mBackdropImage);
 
 

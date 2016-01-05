@@ -1,7 +1,6 @@
 package wsit.com.au.popularmovies.ui.fragments;
 
 
-import android.app.VoiceInteractor;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -53,6 +52,7 @@ public class DetailsFragment extends Fragment
     TextView mOverview;
     TextView mVoteAverage;
     TextView reviewsTextView;
+    TextView trailersTextView;
 
     String movieTitle;
     String movieReleaseDate;
@@ -65,7 +65,7 @@ public class DetailsFragment extends Fragment
     ListView trailerListView;
     ListView reviewsListView;
 
-    // Progessbars for the listviews
+    // Progressbars for the listviews
     ProgressBar trailersProgress;
     ProgressBar reviewsProgress;
 
@@ -80,16 +80,13 @@ public class DetailsFragment extends Fragment
     public static final String TAG = DetailsFragment.class.getSimpleName();
 
 
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        Bundle bundle = getArguments();
-
 
         // Get the data from the MainActivity Bundle
+        Bundle bundle = getArguments();
         getBundleData(bundle);
 
         View rootView = inflater.inflate(R.layout.details_view_movies_fragment, container, false);
@@ -105,6 +102,7 @@ public class DetailsFragment extends Fragment
         trailersProgress = (ProgressBar) rootView.findViewById(R.id.trailersProgressBar);
         reviewsProgress = (ProgressBar) rootView.findViewById(R.id.reviewsProgressBar);
         favorites = (CheckBox) rootView.findViewById(R.id.favoritesCheckBox);
+        trailersTextView = (TextView) rootView.findViewById(R.id.trailersTitleTextView);
         reviewsTextView = (TextView) rootView.findViewById(R.id.reviewsTitleTextView);
 
         // Hide the listViews progress bars initially
@@ -259,9 +257,29 @@ public class DetailsFragment extends Fragment
     // Method to extract the movie release data and display as a year only
     public String extractYear(String date)
     {
-        return date.substring(0, 4);
+        // Check if the date is null
+        try
+        {
+            if (date.equals(null))
+            {
+                // Date is null
+                return "No Date";
+            }
+            else
+            {
+                return date.substring(0, 4);
+            }
+        }
+        catch (NullPointerException e)
+        {
+            Log.i(TAG, "Date on year is null");
+            return "No Date";
+        }
+
+
     }
 
+    // Get all the strings from the bundle from main
     public void getBundleData(Bundle bundle)
     {
 
@@ -280,9 +298,9 @@ public class DetailsFragment extends Fragment
         Picasso.with(getActivity())
                 .load(backdropURL)
 
-                // TODO: Add place holder and error drawables
-                .placeholder(R.drawable.terminator) // Placeholder
-                .error(R.drawable.terminator) // Handle the error
+
+                .placeholder(R.drawable.loading) // Placeholder
+                .error(R.drawable.noimage) // Handle the error
                 .into(mBackdropImage);
 
 
@@ -356,6 +374,19 @@ public class DetailsFragment extends Fragment
             JSONObject jsonData = new JSONObject(JSONData);
             // Get the "results array"
             JSONArray jsonArrayData = jsonData.getJSONArray(PopularMoviesConstants.JSON_RESULTS);
+
+            // Check if we have any trailers by examining the length of the JSON Array
+            // If it's 0 then hide the trailers TextView
+            if (jsonArrayData.length() == 0) {
+                Log.i(TAG, "No trailers for this one");
+                // Hide the Reviews set text
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        trailersTextView.setVisibility(View.GONE);
+                    }
+                });
+            }
 
             // Create an array of trailerItems for storing trailer objects
             final TrailerItems trailerItems[] = new TrailerItems[jsonArrayData.length()];

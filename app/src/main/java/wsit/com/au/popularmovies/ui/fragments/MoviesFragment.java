@@ -18,7 +18,6 @@ import wsit.com.au.popularmovies.R;
  */
 public class MoviesFragment extends Fragment
 {
-    public static final String TAG = MoviesFragment.class.getSimpleName();
 
     @Nullable
     @Override

@@ -1,6 +1,5 @@
 package wsit.com.au.popularmovies.ui;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,9 +32,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.NetworkInterface;
-
-import javax.sql.ConnectionEvent;
 
 import wsit.com.au.popularmovies.db.PopularMoviesDBHelper;
 import wsit.com.au.popularmovies.ui.fragments.DetailsFragment;
@@ -59,6 +55,7 @@ public class MainActivity extends AppCompatActivity
     // Custom Adapter for the GridView
     MovieItemsAdapter adapter;
 
+    // For detecting changes to orientation so we can adjust the gridView columns
     OrientationEventListener mOrientiantionEventListener;
 
     // Network check textView
@@ -72,13 +69,6 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Test saved state
-        if (savedInstanceState != null)
-        {
-            String testVal = savedInstanceState.getString("KEY_TEST");
-            Log.i(TAG, "Test Val is: " + testVal);
-        }
 
         mainGridView = (GridView) findViewById(R.id.mainGridView);
         moviesLoading = (ProgressBar) findViewById(R.id.moviesLoadingProgressBar);
@@ -121,6 +111,10 @@ public class MainActivity extends AppCompatActivity
                     mainGridView.setNumColumns(3);
                 }
 
+
+
+
+
             }
         };
 
@@ -133,9 +127,6 @@ public class MainActivity extends AppCompatActivity
         {
             checkNetwork.setVisibility(View.VISIBLE);
         }
-
-
-
 
 
     }
@@ -170,8 +161,6 @@ public class MainActivity extends AppCompatActivity
         else if(getSortOrderFromSettings().equals("Favorites"))
         {
             // Sort by favorites
-
-            // TODO: Write method to query database and sort movies from favorites
             Log.i(TAG, "Sorting movies by favorites");
             showFavorites();
 
@@ -331,6 +320,8 @@ public class MainActivity extends AppCompatActivity
 
                 // Set the URL in the getter setter object
                 mMovieItemsGetterSetter.setPosterURL(PopularMoviesConstants.BASE_URL + posterPathURL);
+
+                Log.i(TAG, "Poster Path is: " + PopularMoviesConstants.BASE_URL + posterPathURL);
 
                 mMovieItemsGetterSetter.setOriginalTitle(originalTitle);
                 mMovieItemsGetterSetter.setPlotSynopsis(plotSynopsis);
