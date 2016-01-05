@@ -22,20 +22,6 @@
         </activity>
         <activity android:name=".ui.SettingsActivity">
         </activity>
-        <activity
-            android:name=".ui.MovieListActivity"
-            android:label="@string/title_movie_list"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity
-            android:name=".ui.MovieDetailActivity"
-            android:label="@string/title_movie_detail"
-            android:parentActivityName=".ui.MovieListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="wsit.com.au.popularmovies.ui.MovieListActivity"/>
-        </activity>
     </application>
 
 </manifest>

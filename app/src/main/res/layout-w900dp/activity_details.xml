@@ -5,11 +5,11 @@
                 android:layout_height="match_parent"
                 android:background="#2b2b2b">
 
-    <fragment
-        android:id="@+id/detailsViewFragment"
-        tools:layout="@layout/details_view_movies_fragment"
-        android:name="wsit.com.au.popularmovies.ui.fragments.DetailsFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+<fragment
+    android:id="@+id/detailsViewFragment"
+    tools:layout="@layout/details_view_movies_fragment"
+    android:name="wsit.com.au.popularmovies.ui.fragments.DetailsFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
 
 </RelativeLayout>

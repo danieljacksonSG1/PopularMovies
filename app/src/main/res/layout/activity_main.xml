@@ -6,31 +6,17 @@
     tools:context=".MainActivity"
     android:background="#2b2b2b">
 
-    <GridView
 
-        android:id="@+id/mainGridView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:numColumns="3" >
 
-    </GridView>
+    <fragment
+        tools:layout="@layout/grid_view_movies_fragment"
+        android:name="wsit.com.au.popularmovies.ui.fragments.MoviesFragment"
+        android:id="@+id/gridViewFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/moviesLoadingProgressBar"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/check_network"
-        android:id="@+id/noLinkTextView"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:textColor="@android:color/white"/>
 
 
 </RelativeLayout>

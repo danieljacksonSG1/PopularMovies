@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#2b2b2b">
+
+        <ImageView
+            android:scaleType="fitCenter"
+            android:src="@drawable/spectre"
+            android:layout_width="fill_parent"
+            android:layout_height="220dp"
+            android:id="@+id/detailsImageView" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:text="Spectre"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:id="@+id/originalTitle" />
+
+            <!-- Favorites checkbox -->
+            <!-- TODO: Make it a star -->
+            <CheckBox
+                android:textColor="@android:color/holo_purple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:id="@+id/favoritesCheckBox"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:paddingStart="10dp"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2015"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:id="@+id/releaseDate"
+
+            />
+
+
+        <TextView
+            android:text="A cryptic message from Bond’s past sends him on a trail to uncover a sinister organization. While M battles political forces to keep the secret service alive, Bond peels back the layers of deceit to reveal the terrible truth behind SPECTRE."
+            android:id="@+id/overViewTextView"
+            android:layout_height="wrap_content"
+            style="@style/detailsViewText"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_red_dark"
+            android:text="7"
+            android:id="@+id/voteAverageTextView"
+            android:layout_gravity="center_horizontal" />
+
+
+        <TextView
+            android:id="@+id/trailersTitleTextView"
+            android:paddingTop="5dp"
+            android:paddingLeft="10dp"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trailers"
+            android:textColor="@android:color/white" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/trailersProgressBar" />
+
+        <wsit.com.au.popularmovies.utils.NonScrollListView
+            android:id="@+id/trailersListView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+        </wsit.com.au.popularmovies.utils.NonScrollListView>
+
+
+
+        <TextView
+            android:id="@+id/reviewsTitleTextView"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="10dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Reviews"
+            android:textColor="@android:color/white"
+            android:background="@android:color/black"/>
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/reviewsProgressBar"
+            android:layout_gravity="center_horizontal"
+            android:background="@android:color/black"/>
+
+        <wsit.com.au.popularmovies.utils.NonScrollListView
+            android:id="@+id/reviewsListView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+
+        </wsit.com.au.popularmovies.utils.NonScrollListView>
+
+    </LinearLayout>
+
+
+
+
+</ScrollView>
+
+
+
+

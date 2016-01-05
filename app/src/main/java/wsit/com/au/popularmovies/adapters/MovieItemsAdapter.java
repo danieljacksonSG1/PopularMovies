@@ -97,7 +97,7 @@ public class MovieItemsAdapter extends BaseAdapter
         {
 
             Picasso.with(mContext).load(Items.getPosterURL()).into(holder.movieImage);
-            Log.i(TAG, "Bitmap location is: " + Items.getPosterURL());
+
 
         }
         catch (Exception e)

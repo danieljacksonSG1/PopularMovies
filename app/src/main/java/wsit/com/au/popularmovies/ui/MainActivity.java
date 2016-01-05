@@ -1,5 +1,6 @@
 package wsit.com.au.popularmovies.ui;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -37,6 +38,7 @@ import java.net.NetworkInterface;
 import javax.sql.ConnectionEvent;
 
 import wsit.com.au.popularmovies.db.PopularMoviesDBHelper;
+import wsit.com.au.popularmovies.ui.fragments.DetailsFragment;
 import wsit.com.au.popularmovies.utils.MovieItems;
 import wsit.com.au.popularmovies.adapters.MovieItemsAdapter;
 import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     protected GridView mainGridView;
     protected ProgressBar moviesLoading;
     public String JSONDataString;
+    private boolean mTwoPane;
 
     // Array of MovieItems to hold the URL
     MovieItems movieItems[];
@@ -81,6 +84,17 @@ public class MainActivity extends AppCompatActivity
         moviesLoading = (ProgressBar) findViewById(R.id.moviesLoadingProgressBar);
         checkNetwork = (TextView) findViewById(R.id.noLinkTextView);
 
+
+        if (findViewById(R.id.movie_detail_container) != null)
+        {
+            // The detail container view will be present only in the
+            // large-screen layouts (res/values-w900dp).
+            // If this view is present, then the
+            // activity should be in two-pane mode.
+            mTwoPane = true;
+            mainGridView.setNumColumns(2);
+        }
+
         // Hide the progress bar
         moviesLoading.setVisibility(View.INVISIBLE);
 
@@ -93,7 +107,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onOrientationChanged(int orientation)
             {
-
 
                 if (orientation == 270)
                 {
@@ -120,6 +133,7 @@ public class MainActivity extends AppCompatActivity
         {
             checkNetwork.setVisibility(View.VISIBLE);
         }
+
 
 
 
@@ -342,17 +356,56 @@ public class MainActivity extends AppCompatActivity
 
 
                     // Create an onClick listener for the gridViewItem
-                    mainGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    mainGridView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+                    {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
                         {
+
                             // Cast the adapter's getItem method Object to a MovieItem
                             MovieItems movieItem = (MovieItems) adapter.getItem(position);
+                            // Check if we are on a tablet
+                            if (mTwoPane)
+                            {
+                                // Create a bundle object to store strings for access in the fragment
+                                Bundle bundle = new Bundle();
+                                // Put the data into the bundle
+                                bundle.putString(PopularMoviesConstants.ORIGINAL_TITLE, movieItem.getOriginalTitle());
+                                bundle.putString(PopularMoviesConstants.BACKDROP_PATH, movieItem.getBackDropPath());
+                                bundle.putString(PopularMoviesConstants.POSTER_PATH, movieItem.getPosterURL());
+                                bundle.putString(PopularMoviesConstants.PLOT_SYNOPSIS, movieItem.getPlotSynopsis());
+                                bundle.putString(PopularMoviesConstants.VOTE_AVERAGE, movieItem.getUserRating());
+                                bundle.putString(PopularMoviesConstants.RELEASE_DATE, movieItem.getReleaseDate());
+                                bundle.putString(PopularMoviesConstants.MOVIE_ID, movieItem.getMovieID());
 
-                            startDetailsView(movieItem);
+                                // Start the fragment in the fragment
+                                DetailsFragment detailsFragment = new DetailsFragment();
+                                detailsFragment.setArguments(bundle);
+                                getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_container, detailsFragment).commit();
 
+                            }
+                            // If we reach here, then we are not using a Two pane layout
+                            else
+                            {
+                                //startDetailsView(movieItem);
 
+                                // Create a bundle object to store strings for access in the fragment
+                                Bundle bundle = new Bundle();
+                                // Put the data into the bundle
+                                bundle.putString(PopularMoviesConstants.ORIGINAL_TITLE, movieItem.getOriginalTitle());
+                                bundle.putString(PopularMoviesConstants.BACKDROP_PATH, movieItem.getBackDropPath());
+                                bundle.putString(PopularMoviesConstants.POSTER_PATH, movieItem.getPosterURL());
+                                bundle.putString(PopularMoviesConstants.PLOT_SYNOPSIS, movieItem.getPlotSynopsis());
+                                bundle.putString(PopularMoviesConstants.VOTE_AVERAGE, movieItem.getUserRating());
+                                bundle.putString(PopularMoviesConstants.RELEASE_DATE, movieItem.getReleaseDate());
+                                bundle.putString(PopularMoviesConstants.MOVIE_ID, movieItem.getMovieID());
 
+                                // Start the fragment in the fragment
+                                DetailsFragment detailsFragment = new DetailsFragment();
+                                detailsFragment.setArguments(bundle);
+                                // Replace the gridViewFragment with the details view fragment
+                                getSupportFragmentManager().beginTransaction().replace(R.id.gridViewFragment, detailsFragment).addToBackStack(null).commit();
+                            }
 
                         }
                     });
@@ -365,7 +418,6 @@ public class MainActivity extends AppCompatActivity
         {
             e.printStackTrace();
         }
-
 
     }
 

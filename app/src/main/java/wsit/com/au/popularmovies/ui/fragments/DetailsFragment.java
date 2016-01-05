@@ -1,26 +1,24 @@
-package wsit.com.au.popularmovies.ui;
+package wsit.com.au.popularmovies.ui.fragments;
 
-import android.app.Activity;
+
 import android.app.VoiceInteractor;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,30 +27,26 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.picasso.Picasso;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.concurrent.TransferQueue;
 
+import wsit.com.au.popularmovies.R;
 import wsit.com.au.popularmovies.adapters.ReviewItemsAdapter;
 import wsit.com.au.popularmovies.adapters.TrailerItemsAdapter;
 import wsit.com.au.popularmovies.db.PopularMoviesDBHelper;
-import wsit.com.au.popularmovies.utils.MovieItems;
 import wsit.com.au.popularmovies.utils.PopularMoviesConstants;
-import wsit.com.au.popularmovies.R;
 import wsit.com.au.popularmovies.utils.ReviewItems;
 import wsit.com.au.popularmovies.utils.TrailerItems;
 
-public class DetailsActivity extends Activity
+/**
+ * Created by guyb on 5/01/16.
+ */
+public class DetailsFragment extends Fragment
 {
-
-    // Log Tag
-    public static final String TAG = DetailsActivity.class.getSimpleName();
-
     ImageView mBackdropImage;
     TextView mOriginalTitle;
     TextView mReleaseDate;
@@ -83,42 +77,44 @@ public class DetailsActivity extends Activity
 
     public String trailerJSONString;
 
+    public static final String TAG = DetailsFragment.class.getSimpleName();
+
+
+
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
+        Bundle bundle = getArguments();
+
+
+        // Get the data from the MainActivity Bundle
+        getBundleData(bundle);
+
+        View rootView = inflater.inflate(R.layout.details_view_movies_fragment, container, false);
 
         // Find the XML IDs
-        mBackdropImage = (ImageView) findViewById(R.id.detailsImageView);
-        mOriginalTitle = (TextView) findViewById(R.id.originalTitle);
-        mReleaseDate = (TextView) findViewById(R.id.releaseDate);
-        mOverview = (TextView) findViewById(R.id.overViewTextView);
-        mVoteAverage = (TextView) findViewById(R.id.voteAverageTextView);
-        trailerListView = (ListView) findViewById(R.id.trailersListView);
-        reviewsListView = (ListView) findViewById(R.id.reviewsListView);
-        trailersProgress = (ProgressBar) findViewById(R.id.trailersProgressBar);
-        reviewsProgress = (ProgressBar) findViewById(R.id.reviewsProgressBar);
-        favorites = (CheckBox) findViewById(R.id.favoritesCheckBox);
-        reviewsTextView = (TextView) findViewById(R.id.reviewsTitleTextView);
+        mBackdropImage = (ImageView) rootView.findViewById(R.id.detailsImageView);
+        mOriginalTitle = (TextView) rootView.findViewById(R.id.originalTitle);
+        mReleaseDate = (TextView) rootView.findViewById(R.id.releaseDate);
+        mOverview = (TextView) rootView.findViewById(R.id.overViewTextView);
+        mVoteAverage = (TextView) rootView.findViewById(R.id.voteAverageTextView);
+        trailerListView = (ListView) rootView.findViewById(R.id.trailersListView);
+        reviewsListView = (ListView) rootView.findViewById(R.id.reviewsListView);
+        trailersProgress = (ProgressBar) rootView.findViewById(R.id.trailersProgressBar);
+        reviewsProgress = (ProgressBar) rootView.findViewById(R.id.reviewsProgressBar);
+        favorites = (CheckBox) rootView.findViewById(R.id.favoritesCheckBox);
+        reviewsTextView = (TextView) rootView.findViewById(R.id.reviewsTitleTextView);
 
         // Hide the listViews progress bars initially
         trailersProgress.setVisibility(View.INVISIBLE);
         reviewsProgress.setVisibility(View.INVISIBLE);
 
-
-        // Create an intent to get the data from MainActivity
-        Intent intent = getIntent();
-
-        // Get the Intent data from MainActivity
-        getIntentData(intent);
-
-        // Now set the Intent data in the UI
-        setIntentData();
+        setBundleData();
 
         // Check if movie is in favorties DB
         queryFavoritesDB();
-
 
         favorites.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,8 +140,55 @@ public class DetailsActivity extends Activity
         });
 
 
+        return rootView;
+    }
+
+    private void removeMovieFromFavorites()
+    {
+        Log.i(TAG, "Removing movie from favorites");
+        Toast.makeText(getActivity(), "Removing movie from favorites", Toast.LENGTH_LONG).show();
+
+        // Setup access to the db
+        dbHelper = new PopularMoviesDBHelper(getActivity());
+        database = dbHelper.getWritableDatabase();
+
+        // Delete from Favorites where movieTitle = the movieTitle
+        database.delete(PopularMoviesDBHelper.TABLE_FAVORITES, PopularMoviesDBHelper.COLUMN_TITLE + "='" + movieTitle + "'", null);
+
+
+        database.close();
+
+
+
 
     }
+
+    private void addMovieToFavorites() {
+
+        if (checkIfmovieIsFavorite()) {
+            Toast.makeText(getActivity(), "Movie already in favorites", Toast.LENGTH_LONG).show();
+        } else {
+            Log.i(TAG, "Adding movie to favorites");
+            Toast.makeText(getActivity(), "Added to favorites", Toast.LENGTH_LONG).show();
+            // Setup access to the db
+            dbHelper = new PopularMoviesDBHelper(getActivity());
+            database = dbHelper.getWritableDatabase();
+
+            final ContentValues values = new ContentValues();
+            values.put(PopularMoviesDBHelper.COLUMN_TITLE, movieTitle);
+            values.put(PopularMoviesDBHelper.COLUMN_RELEASE_YEAR, movieReleaseDate);
+            values.put(PopularMoviesDBHelper.COLUMN_PLOT, movieOverview);
+            values.put(PopularMoviesDBHelper.COLUMN_RATING, movieVoteAverage);
+            values.put(PopularMoviesDBHelper.COLUMN_POSTER_IMAGE, posterURL);
+            values.put(PopularMoviesDBHelper.COLUMN_BACKDROP_IMAGE, backdropURL);
+
+
+            database.insert(PopularMoviesDBHelper.TABLE_FAVORITES, null, values);
+
+            database.close();
+        }
+    }
+
 
     public boolean checkIfmovieIsFavorite()
     {
@@ -154,7 +197,7 @@ public class DetailsActivity extends Activity
         Log.i(TAG, "Checking if movie is in favorites");
 
         // Setup access to the db
-        dbHelper = new PopularMoviesDBHelper(this);
+        dbHelper = new PopularMoviesDBHelper(getActivity());
         database = dbHelper.getWritableDatabase();
 
         String allColums[] = {
@@ -175,7 +218,7 @@ public class DetailsActivity extends Activity
                 found = true;
             }
 
-                cursor.moveToNext();
+            cursor.moveToNext();
 
 
         }
@@ -191,59 +234,6 @@ public class DetailsActivity extends Activity
             cursor.close();
             database.close();
             return false;
-        }
-
-
-
-    }
-
-    private void removeMovieFromFavorites()
-    {
-        Log.i(TAG, "Removing movie from favorites");
-        Toast.makeText(DetailsActivity.this, "Removing movie from favorites", Toast.LENGTH_LONG).show();
-
-        // Setup access to the db
-        dbHelper = new PopularMoviesDBHelper(this);
-        database = dbHelper.getWritableDatabase();
-
-        // Delete from Favorites where movieTitle = the movieTitle
-        database.delete(PopularMoviesDBHelper.TABLE_FAVORITES, PopularMoviesDBHelper.COLUMN_TITLE + "='" + movieTitle + "'", null);
-
-
-        database.close();
-
-
-
-
-    }
-
-    private void addMovieToFavorites()
-    {
-
-        if (checkIfmovieIsFavorite())
-        {
-            Toast.makeText(DetailsActivity.this, "Movie already in favorites", Toast.LENGTH_LONG).show();
-        }
-        else
-        {
-            Log.i(TAG, "Adding movie to favorites");
-            Toast.makeText(DetailsActivity.this, "Added to favorites", Toast.LENGTH_LONG).show();
-            // Setup access to the db
-            dbHelper = new PopularMoviesDBHelper(this);
-            database = dbHelper.getWritableDatabase();
-
-            final ContentValues values = new ContentValues();
-            values.put(PopularMoviesDBHelper.COLUMN_TITLE, movieTitle);
-            values.put(PopularMoviesDBHelper.COLUMN_RELEASE_YEAR, movieReleaseDate);
-            values.put(PopularMoviesDBHelper.COLUMN_PLOT, movieOverview);
-            values.put(PopularMoviesDBHelper.COLUMN_RATING, movieVoteAverage);
-            values.put(PopularMoviesDBHelper.COLUMN_POSTER_IMAGE, posterURL);
-            values.put(PopularMoviesDBHelper.COLUMN_BACKDROP_IMAGE, backdropURL);
-
-
-            database.insert(PopularMoviesDBHelper.TABLE_FAVORITES, null, values);
-
-            database.close();
         }
 
 
@@ -272,35 +262,22 @@ public class DetailsActivity extends Activity
         return date.substring(0, 4);
     }
 
-
-    // Method to get the intent data
-    public void getIntentData(Intent intent)
+    public void getBundleData(Bundle bundle)
     {
-        // Get the movie title
-        movieTitle = intent.getStringExtra(PopularMoviesConstants.ORIGINAL_TITLE);
-        // Get the release date
-        movieReleaseDate = intent.getStringExtra(PopularMoviesConstants.RELEASE_DATE);
-        // Get the plot
-        movieOverview = intent.getStringExtra(PopularMoviesConstants.PLOT_SYNOPSIS);
-        // Get the vote average
-        movieVoteAverage = intent.getStringExtra(PopularMoviesConstants.VOTE_AVERAGE);
-        // Get the backdrop URL
-        backdropURL = intent.getStringExtra(PopularMoviesConstants.BACKDROP_PATH);
-        // Get the movieID
-        movieID = intent.getStringExtra(PopularMoviesConstants.MOVIE_ID);
-        // Get the Poster URL
-        posterURL = intent.getStringExtra(PopularMoviesConstants.POSTER_PATH);
 
-
-
+        movieTitle = bundle.getString(PopularMoviesConstants.ORIGINAL_TITLE);
+        movieReleaseDate = bundle.getString(PopularMoviesConstants.RELEASE_DATE);
+        movieOverview = bundle.getString(PopularMoviesConstants.PLOT_SYNOPSIS);
+        movieVoteAverage = bundle.getString(PopularMoviesConstants.VOTE_AVERAGE);
+        backdropURL = bundle.getString(PopularMoviesConstants.BACKDROP_PATH);
+        movieID = bundle.getString(PopularMoviesConstants.MOVIE_ID);
+        posterURL = bundle.getString(PopularMoviesConstants.POSTER_PATH);
     }
 
-    // Method to set the intent data
-    public void setIntentData()
+    public void setBundleData()
     {
-
         // Load the backdrop URL into the imageView using Picasso
-        Picasso.with(DetailsActivity.this)
+        Picasso.with(getActivity())
                 .load(backdropURL)
 
                 // TODO: Add place holder and error drawables
@@ -327,18 +304,6 @@ public class DetailsActivity extends Activity
         getTrailers(movieID);
 
         // Get the Reviews in JSON Format
-        getReviews(movieID);
-
-
-
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-        getTrailers(movieID);
         getReviews(movieID);
     }
 
@@ -422,7 +387,7 @@ public class DetailsActivity extends Activity
 
 
 
-            runOnUiThread(new Runnable()
+            getActivity().runOnUiThread(new Runnable()
             {
 
                 @Override
@@ -430,7 +395,7 @@ public class DetailsActivity extends Activity
 
                     // Now hide the trailers Progress
                     trailersProgress.setVisibility(View.INVISIBLE);
-                    final TrailerItemsAdapter adapter = new TrailerItemsAdapter(DetailsActivity.this, trailerItems);
+                    final TrailerItemsAdapter adapter = new TrailerItemsAdapter(getActivity(), trailerItems);
                     trailerListView.setAdapter(adapter);
 
                     trailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -526,7 +491,7 @@ public class DetailsActivity extends Activity
             {
                 Log.i(TAG, "No reviews for this one");
                 // Hide the Reviews set text
-                runOnUiThread(new Runnable() {
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run()
                     {
@@ -569,14 +534,14 @@ public class DetailsActivity extends Activity
 
 
 
-            runOnUiThread(new Runnable() {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
 
                     // Now hide the reviews Progress
                     reviewsProgress.setVisibility(View.GONE);
 
-                    ReviewItemsAdapter reviewItemsAdapter = new ReviewItemsAdapter(DetailsActivity.this, mReviewItems);
+                    ReviewItemsAdapter reviewItemsAdapter = new ReviewItemsAdapter(getActivity(), mReviewItems);
                     reviewsListView.setAdapter(reviewItemsAdapter);
                 }
             });
@@ -590,4 +555,6 @@ public class DetailsActivity extends Activity
             e.printStackTrace();
         }
     }
+
+
 }
